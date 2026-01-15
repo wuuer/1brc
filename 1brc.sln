@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1brc", "1brc\1brc.csproj", "{82268F02-4789-4788-A56D-309DCAAA9BEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1brc.UniTest", "1brc.UniTest\1brc.UniTest.csproj", "{FC45C289-140E-4A78-AD74-8FAA9419E021}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +17,15 @@ Global
 		{82268F02-4789-4788-A56D-309DCAAA9BEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82268F02-4789-4788-A56D-309DCAAA9BEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82268F02-4789-4788-A56D-309DCAAA9BEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC45C289-140E-4A78-AD74-8FAA9419E021}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC45C289-140E-4A78-AD74-8FAA9419E021}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC45C289-140E-4A78-AD74-8FAA9419E021}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC45C289-140E-4A78-AD74-8FAA9419E021}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {62BA800D-BC82-41DC-9915-B3E71107E7EE}
 	EndGlobalSection
 EndGlobal

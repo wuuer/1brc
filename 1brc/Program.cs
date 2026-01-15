@@ -4,11 +4,11 @@ using System.Text;
 
 namespace _1brc;
 
-internal class Program
+public class Program
 {
-    private static void Main(string[] args)
+    public static void Main(string[] args)
     {
-        var path = args.Length > 0 ? args[0] : "./data/measurements-10000.txt";
+        var path = args.Length > 0 ? args[0] : ".\\data\\measurements-44k.txt";
 
         if (args.Contains("--results"))
         {
@@ -23,14 +23,20 @@ internal class Program
             StartSubprocess(path);
     }
 
-    private static void DoWork(string path)
+    public static string Run(string path)
     {
+        return DoWork(path);
+    }
+
+    private static string DoWork(string path)
+    {
+        var start = Stopwatch.GetTimestamp();
         using (var app = new App(path))
         {
-            var sw = Stopwatch.StartNew();
-            app.PrintResult();
-            sw.Stop();
-            Console.Out.Close();
+            var strResult = app.PrintResult();
+            Console.WriteLine($"Total seconds: {Stopwatch.GetElapsedTime(start).TotalSeconds}");
+            //Console.Out.Close();
+            return strResult;
         }
     }
 

@@ -30,6 +30,7 @@ namespace _1brc
                 Min = other.Min;
             if (other.Max > Max || Count == 0)
                 Max = other.Max;
+
             Sum += other.Sum;
             Count += other.Count;
         }

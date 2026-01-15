@@ -42,7 +42,18 @@ namespace _1brc
         /// Slice without bound checks. Use only when the bounds are checked/ensured before the call.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Utf8Span SliceUnsafe(nuint start) => new(Pointer + start, Length - start);
+        internal Utf8Span SliceUnsafe(nuint start)
+        {
+            var nextPointer = Pointer + start;
+            var PointerEnd = Pointer + Length;
+
+            if (nextPointer > PointerEnd)
+            {
+                return new(PointerEnd, 0);
+            }
+
+            return new(nextPointer, Length - start);
+        }
 
         // Static data, no allocations. It's inlined in an assembly and has a fixed address.
         // ReSharper disable RedundantExplicitArraySize : it's very useful to ensure the right size.
@@ -171,6 +182,10 @@ namespace _1brc
         internal nuint IndexOfSemicolon() => Vector256.IsHardwareAccelerated ? IndexOfSemicolon(Pointer) : IndexOf(0, (byte)';');
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal List<nuint> IndexOfSemicolons() => Vector256.IsHardwareAccelerated ? IndexOfSemicolons(Pointer) : IndexOfs(0, (byte)';');
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static nuint IndexOfSemicolon(byte* ptr)
         {
             var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr), Vector256.Create((byte)';'));
@@ -178,6 +193,30 @@ namespace _1brc
 
             nuint idx = mask == 0 ? IndexOfSemicolonLong(ptr) : (uint)BitOperations.TrailingZeroCount(mask);
             return idx;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static List<nuint> IndexOfSemicolons(byte* ptr)
+        {
+            var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr), Vector256.Create((byte)';'));
+            //var matches = Vector256.Equals(Vector256.Create<byte>(new ReadOnlySpan<byte>(ptr, length)), Vector256.Create((byte)';'));
+            var mask = matches.ExtractMostSignificantBits();
+
+            if (mask == 0)
+            {
+                return IndexOfSemicolonsLong(ptr);
+            }
+
+            var indices = new List<nuint>(4);
+
+            while (mask != 0)
+            {
+                int index = BitOperations.TrailingZeroCount(mask);
+                indices.Add((nuint)index);
+                mask &= (mask - 1);
+            }
+
+            return indices;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -205,6 +244,63 @@ namespace _1brc
             return vectorSize3 + tzc;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static List<nuint> IndexOfSemicolonsLong(byte* ptr)
+        {
+            const int vectorSize = 32;
+
+            var indices = new List<nuint>(4);
+
+            var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize), Vector256.Create((byte)';'));
+            var mask = matches.ExtractMostSignificantBits();
+
+            if (mask != 0)
+            {
+                do
+                {
+                    indices.Add((uint)BitOperations.TrailingZeroCount(mask) + vectorSize);
+                    mask &= (mask - 1);
+
+                } while (mask != 0);
+
+                return indices;
+            }
+
+
+
+            const nuint vectorSize2 = 2 * vectorSize;
+            matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize2), Vector256.Create((byte)';'));
+            mask = matches.ExtractMostSignificantBits();
+            if (mask != 0)
+            {
+                do
+                {
+                    indices.Add((uint)BitOperations.TrailingZeroCount(mask) + vectorSize2);
+                    mask &= (mask - 1);
+
+                } while (mask != 0);
+
+                return indices;
+            }
+
+            const nuint vectorSize3 = 3 * vectorSize;
+            matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize3), Vector256.Create((byte)';'));
+            mask = matches.ExtractMostSignificantBits();
+            if (mask != 0)
+            {
+                do
+                {
+                    indices.Add((uint)BitOperations.TrailingZeroCount(mask) + vectorSize3);
+                    mask &= (mask - 1);
+
+                } while (mask != 0);
+
+                return indices;
+            }
+
+            return indices;
+        }
+
         /// <summary>
         /// Generic fallback
         /// </summary>
@@ -213,6 +309,24 @@ namespace _1brc
         {
             var indexOf = (nuint)SliceUnsafe(start).Span.IndexOf(needle);
             return (nint)indexOf < 0 ? Length : start + indexOf;
+        }
+
+        /// <summary>
+        /// Generic fallback
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private List<nuint> IndexOfs(nuint start, byte needle)
+        {
+            var result = new List<nuint>(4);
+            var indexOf = SliceUnsafe(start).Span.IndexOf(needle);
+
+            while (indexOf != -1)
+            {
+                result.Add((nuint)indexOf);
+                indexOf = SliceUnsafe(start + (nuint)indexOf).Span.IndexOf(needle);
+            }
+
+            return result;
         }
     }
 }

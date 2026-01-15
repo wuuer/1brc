@@ -53,6 +53,12 @@
       <None Update="data\measurements-3.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="data\measurements-44k.out">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="data\measurements-44k.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="data\measurements-boundaries.out">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
