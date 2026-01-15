@@ -8,14 +8,14 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        var path = args.Length > 0 ? args[0] : "D:/tmp/measurements_1B_10K.txt";
+        var path = args.Length > 0 ? args[0] : "./data/measurements-10000.txt";
 
         if (args.Contains("--results"))
         {
             new ResultsParser().ExtractToCsv(path);
             return;
         }
-        
+
         Console.OutputEncoding = Encoding.UTF8;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || args.Contains("--worker"))
             DoWork(path);
