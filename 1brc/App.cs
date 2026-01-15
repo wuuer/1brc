@@ -391,7 +391,7 @@ namespace _1brc
 
             var strResult = sb.ToString();
             //File.WriteAllText($"output.txt", strResult);
-            Console.WriteLine(strResult);
+            //Console.WriteLine(strResult);
 
             result.Dispose();
 

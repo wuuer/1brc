@@ -1,6 +1,11 @@
 # .NET Solution for One Billion Row Challenge
+> Forked from [buybackoff/1brc](https://github.com/buybackoff/1brc). 
 
-My blog post: https://hotforknowledge.com/2024/01/13/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey/
+> - Fix Memory Violations exceptions.
+
+> - Add Unit test.
+
+blog post: https://hotforknowledge.com/2024/01/13/1brc-in-dotnet-among-fastest-on-linux-my-optimization-journey/
 
 ## Results
 
