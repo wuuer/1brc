@@ -269,8 +269,8 @@ namespace _1brc
         //            byte* p = remaining.Pointer + nextStart;
         //            var length = idx - nextStart;
         //            var value = remaining.ParseInt(idx, out nextStart);
-        //            result.Update(new Utf8Span(p, length), value);
-
+        //            var city = new Utf8Span(p, length);
+        //            result.Update(city, value);
         //        }
 
         //        remaining = remaining.SliceUnsafe(nextStart);

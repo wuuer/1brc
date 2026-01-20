@@ -8,7 +8,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var path = args.Length > 0 ? args[0] : ".\\measurements.txt";
+        var path = args.Length > 0 ? args[0] : ".\\data\\measurements-44k.txt";
 
         if (args.Contains("--results"))
         {

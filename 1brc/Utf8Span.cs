@@ -10,6 +10,7 @@ namespace _1brc
     {
         internal readonly byte* Pointer;
         internal readonly nuint Length;
+        static readonly Vector256<byte> Semicolon = Vector256.Create((byte)';');
 
         public Utf8Span(byte* pointer, nuint length)
         {
@@ -182,7 +183,7 @@ namespace _1brc
         internal nuint IndexOfSemicolon() => Vector256.IsHardwareAccelerated ? IndexOfSemicolon(Pointer) : IndexOf(0, (byte)';');
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal List<nuint> IndexOfSemicolons() => Vector256.IsHardwareAccelerated ? IndexOfSemicolons(Pointer) : IndexOfs(0, (byte)';');
+        internal List<nuint> IndexOfSemicolons() => Vector256.IsHardwareAccelerated ? IndexOfSemicolons(Pointer, (int)Length) : IndexOfs(0, (byte)';');
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -196,15 +197,14 @@ namespace _1brc
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static List<nuint> IndexOfSemicolons(byte* ptr)
+        internal static List<nuint> IndexOfSemicolons(byte* ptr, int length)
         {
-            var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr), Vector256.Create((byte)';'));
-            //var matches = Vector256.Equals(Vector256.Create<byte>(new ReadOnlySpan<byte>(ptr, length)), Vector256.Create((byte)';'));
+            var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr), Semicolon);
             var mask = matches.ExtractMostSignificantBits();
 
             if (mask == 0)
             {
-                return IndexOfSemicolonsLong(ptr);
+                return IndexOfSemicolonsLong(ptr, length);
             }
 
             var indices = new List<nuint>(4);
@@ -212,11 +212,18 @@ namespace _1brc
             while (mask != 0)
             {
                 int index = BitOperations.TrailingZeroCount(mask);
+                // Bounds check
+                if (index > length - 1)
+                {
+                    break;
+                }
                 indices.Add((nuint)index);
                 mask &= (mask - 1);
             }
 
             return indices;
+
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -245,20 +252,30 @@ namespace _1brc
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static List<nuint> IndexOfSemicolonsLong(byte* ptr)
+        private static List<nuint> IndexOfSemicolonsLong(byte* ptr, int length)
         {
             const int vectorSize = 32;
 
             var indices = new List<nuint>(4);
 
-            var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize), Vector256.Create((byte)';'));
+            if (vectorSize > length)
+            {
+                return indices;
+            }
+
+            var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize), Semicolon);
             var mask = matches.ExtractMostSignificantBits();
 
             if (mask != 0)
             {
                 do
                 {
-                    indices.Add((uint)BitOperations.TrailingZeroCount(mask) + vectorSize);
+                    uint index = (uint)BitOperations.TrailingZeroCount(mask) + vectorSize;
+                    if (index > length - 1)
+                    {
+                        break;
+                    }
+                    indices.Add(index);
                     mask &= (mask - 1);
 
                 } while (mask != 0);
@@ -267,15 +284,26 @@ namespace _1brc
             }
 
 
+            const uint vectorSize2 = 2 * vectorSize;
 
-            const nuint vectorSize2 = 2 * vectorSize;
-            matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize2), Vector256.Create((byte)';'));
+
+            if ((int)vectorSize2 > length)
+            {
+                return indices;
+            }
+
+            matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize2), Semicolon);
             mask = matches.ExtractMostSignificantBits();
             if (mask != 0)
             {
                 do
                 {
-                    indices.Add((uint)BitOperations.TrailingZeroCount(mask) + vectorSize2);
+                    uint index = (uint)BitOperations.TrailingZeroCount(mask) + vectorSize2;
+                    if (index > length - 1)
+                    {
+                        break;
+                    }
+                    indices.Add(index);
                     mask &= (mask - 1);
 
                 } while (mask != 0);
@@ -283,14 +311,25 @@ namespace _1brc
                 return indices;
             }
 
-            const nuint vectorSize3 = 3 * vectorSize;
-            matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize3), Vector256.Create((byte)';'));
+            const uint vectorSize3 = 3 * vectorSize;
+
+            if ((int)vectorSize3 > length)
+            {
+                return indices;
+            }
+
+            matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize3), Semicolon);
             mask = matches.ExtractMostSignificantBits();
             if (mask != 0)
             {
                 do
                 {
-                    indices.Add((uint)BitOperations.TrailingZeroCount(mask) + vectorSize3);
+                    uint index = (uint)BitOperations.TrailingZeroCount(mask) + vectorSize2;
+                    if (index > length - 1)
+                    {
+                        break;
+                    }
+                    indices.Add(index);
                     mask &= (mask - 1);
 
                 } while (mask != 0);

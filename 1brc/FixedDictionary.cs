@@ -144,6 +144,7 @@ namespace _1brc
                     var source = new Span<byte>(utf8Span.Pointer, utf8SpanLength);
                     source.CopyTo(target);
                     _keysLength += utf8SpanLength;
+
                     return new Utf8Span(targetPtr, utf8Span.Length);
                 }
             }
