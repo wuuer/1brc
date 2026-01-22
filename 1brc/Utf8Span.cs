@@ -189,7 +189,7 @@ namespace _1brc
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static nuint IndexOfSemicolon(byte* ptr)
         {
-            var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr), Vector256.Create((byte)';'));
+            var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr), Semicolon);
             var mask = matches.ExtractMostSignificantBits();
 
             nuint idx = mask == 0 ? IndexOfSemicolonLong(ptr) : (uint)BitOperations.TrailingZeroCount(mask);
@@ -231,21 +231,21 @@ namespace _1brc
         {
             const nuint vectorSize = 32;
 
-            var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize), Vector256.Create((byte)';'));
+            var matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize), Semicolon);
             var mask = matches.ExtractMostSignificantBits();
             var tzc = (uint)BitOperations.TrailingZeroCount(mask);
             if (mask != 0)
                 return vectorSize + tzc;
 
             const nuint vectorSize2 = 2 * vectorSize;
-            matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize2), Vector256.Create((byte)';'));
+            matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize2), Semicolon);
             mask = matches.ExtractMostSignificantBits();
             tzc = (uint)BitOperations.TrailingZeroCount(mask);
             if (mask != 0)
                 return vectorSize2 + tzc;
 
             const nuint vectorSize3 = 3 * vectorSize;
-            matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize3), Vector256.Create((byte)';'));
+            matches = Vector256.Equals(Unsafe.ReadUnaligned<Vector256<byte>>(ptr + vectorSize3), Semicolon);
             mask = matches.ExtractMostSignificantBits();
             tzc = (uint)BitOperations.TrailingZeroCount(mask);
             return vectorSize3 + tzc;

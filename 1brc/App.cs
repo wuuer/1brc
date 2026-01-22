@@ -102,8 +102,8 @@ namespace _1brc
                     //{
                     //}
 
-                    _leftoverStart = _fileStream.Position;
-                    _leftoverLength = (int)(fileLength - _leftoverStart);
+                    //_leftoverStart = _fileStream.Position;
+                    _leftoverLength = (int)(fileLength - _fileStream.Position);
 
                     chunks.Add((pos, _leftoverLength));
                     break;
@@ -226,11 +226,10 @@ namespace _1brc
                 {
                     var bufferLength = (int)Math.Min(SEGMENT_SIZE, chunkRemaining);
                     Span<byte> bufferSpan = buffer.AsSpan(0, bufferLength);
-
-                    // Just ignore what we've read after \n
+                    //// Just ignore what we've read after \n
                     int segmentRead = RandomAccess.Read(fileHandle, bufferSpan, start);
                     long segmentConsumed = bufferSpan.Slice(0, segmentRead).LastIndexOf(LF) + 1;
-                    // The end of the last thunk doesn't have \n, consume all
+                    //// The end of the last thunk doesn't have \n, consume all
                     if (segmentConsumed == 0)
                     {
                         segmentConsumed = segmentRead;
@@ -283,6 +282,13 @@ namespace _1brc
             while (remaining.Length > 0)
             {
                 nuint idx = remaining.IndexOfSemicolon();
+
+                // Bound check
+                if (idx > remaining.Length - 1)
+                {
+                    break;
+                }
+
                 nint value = remaining.ParseInt(idx, out var nextStart);
                 result.Update(new Utf8Span(remaining.Pointer, idx), value);
                 remaining = remaining.SliceUnsafe(nextStart);
@@ -356,6 +362,10 @@ namespace _1brc
                     chunk.Dispose();
                     return result;
                 });
+
+#if DEBUG
+            Console.WriteLine($"rowCount: {rowCount}");
+#endif
 
             return result;
         }
