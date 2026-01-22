@@ -363,10 +363,6 @@ namespace _1brc
                     return result;
                 });
 
-#if DEBUG
-            Console.WriteLine($"rowCount: {rowCount}");
-#endif
-
             return result;
         }
 
